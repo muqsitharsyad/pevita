@@ -10,11 +10,16 @@ const { jsonFormat } = require('../../utils/jsonFormat');
 const { isNull } = require('../../utils/isNull');
 
 exports.getUser = async(req, res, next) => {
+    //? User Data
+    const userId   = req.userId
+    const userName = req.name
+
     try{
         const user = await Users.findAll({attributes:['id', 'name', 'email']})
         if (isNull(user)) {
             return jsonFormat(res, 400, "The Email is not Registered")
         }else{
+            traceLog.trace(`[Get User] Name : ${userName}, id : ${userId}`)
             return jsonFormat(res, 200, "User Data", user)
         }
     }catch(err){
@@ -24,9 +29,35 @@ exports.getUser = async(req, res, next) => {
     }
 }
 
+exports.register = async(req, res, next) => {
+    const name         = req.body.name
+    const email        = req.body.email
+    const password     = req.body.password
+    const confPassword = req.body.confPassword
+
+    if(password !== confPassword) return jsonFormat(res, 400, "Password and Confirm Password do not match")
+    const salt = await bcrypt.genSalt();
+    const hashPassword = await bcrypt.hash(password, salt);
+
+    try {
+        await Users.create({
+            name: name,
+            email: email,
+            password: hashPassword
+        });
+
+        traceLog.trace(`[Register] User Registration Successful - Name : ${name}, Email : ${email}`)
+        return jsonFormat(res, 200, "Registration Successful")
+    } catch (err) {
+        console.log(err)
+        errorLog.error(`at function userController(register) => ${err}`);
+        next(err);
+    }
+}
+
 exports.login = async(req, res, next) => {
-    const emaill       = req.body.email;
-    const password    = req.body.password;
+    const emaill   = req.body.email;
+    const password = req.body.password;
 
     try{
         const user = await  Users.findOne({where: {email: emaill}})
@@ -52,7 +83,8 @@ exports.login = async(req, res, next) => {
         });
 
         await Users.update({refresh_token: refreshToken},{where:{id: userId}})
-        
+        const userIP = req.connection.remoteAddress;
+        traceLog.trace(`[Login] User Login Successful - IP: ${userIP}, Name : ${name}, Email : ${email}`)
         return jsonFormat(res, 200, "Login Successfully", {access_token: accesToken})
     }catch(err){
         console.log(err)
@@ -64,10 +96,15 @@ exports.login = async(req, res, next) => {
 exports.logout = async(req, res, next) => {
     const refreshToken = req.cookies.refreshToken
     if(!refreshToken) return jsonFormat(res, 204)
+
     const user = await Users.findAll({where:{refresh_token: refreshToken}})
     if(!user[0]) return jsonFormat(res, 204)
+
     const userId = user[0].id
+    const name = user[0].name
     await Users.update({refresh_token: null},{where:{id: userId}});
     res.clearCookie('refreshToken')
+
+    traceLog.trace(`[Logout] User Logout Successful - Name : ${name}, UserId : ${userId}`)
     return jsonFormat(res, 200, "Good bye! See u!")
 }

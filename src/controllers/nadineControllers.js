@@ -106,7 +106,7 @@ exports.gen_nosurat = async(req, res, next) => {
         if(!store){
             return jsonFormat(res, "", "Failed", store)
         }else{
-            traceLog.trace(`User action create `, store)
+            traceLog.trace(`[Generate Number] ip : ${req.ip},id : ${req.userId}, email : ${req.email}, data : `, store.get())
             return jsonFormat(res, 201, "The Number is Successfully Created", GeneratedNumber)
         }
     }catch(err){

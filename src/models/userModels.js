@@ -25,6 +25,9 @@ const Users = db.define('users', {
   },  
   refresh_token: {
     type: DataTypes.TEXT,
+  },  
+  otp_token: {
+    type: DataTypes.TEXT,
   },
   created_at: {
     type: DataTypes.DATE,
