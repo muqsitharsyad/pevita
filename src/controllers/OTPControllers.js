@@ -18,7 +18,8 @@ exports.getTokenOTP = async(req, res, next) => {
     let config = {
         method: 'post',
         maxBodyLength: Infinity,
-        url: 'https://chat-service.qontak.com/oauth/token',
+        // url: 'https://chat-service.qontak.com/oauth/token',
+        url: 'https://service-chat.qontak.com/api/open/v1/oauth/token',
         headers: { 
             'Content-Type': 'application/json'
         },
@@ -65,8 +66,8 @@ exports.otpmessage = async(req, res, next) => {
 
     //* Preparing data to send wa api
     let data = JSON.stringify({
-        "to_number": `${no_hp}`,
         "to_name": "Penerima",
+        "to_number": `${no_hp}`,
         "message_template_id": "669642a8-f7b5-4436-98cc-21f8155a8096",
         "channel_integration_id": "6e7d4957-c061-4723-a79b-69afb1e249a8",
         "language": {
@@ -86,7 +87,8 @@ exports.otpmessage = async(req, res, next) => {
     let config = {
         method: 'post',
         maxBodyLength: Infinity,
-        url: 'https://chat-service.qontak.com/api/open/v1/broadcasts/whatsapp/direct',
+        // url: 'https://chat-service.qontak.com/api/open/v1/broadcasts/whatsapp/direct',
+        url: 'https://service-chat.qontak.com/api/open/v1/broadcasts/whatsapp/direct',
         headers: { 
             'Content-Type': 'application/json', 
             'Authorization': `Bearer ${otpToken}`
