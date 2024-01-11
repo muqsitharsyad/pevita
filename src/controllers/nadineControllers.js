@@ -10,7 +10,7 @@ exports.index = (req, res, next) => {
     NomorSurat.findAll({offset: 5, limit: 5,})
         .then(list => {
             jsonFormat(res, 200, "Data Nomor Surat", list)
-            traceLog.trace(`User action FindAll ${data}`);
+            traceLog.trace(`User action FindAll ${list}`);
         }).catch(err => {
             console.log(err)
             errorLog.error(`at function Paket(destroy) => ${err}`);
